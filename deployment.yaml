@@ -21,10 +21,11 @@ spec:
         - containerPort: 11434 # The standard API port for AI models
         resources:
           requests:
-            memory: "2Gi"   # Reserve 2GB for the AI
-            cpu: "1000m"    # Request 1 full CPU core
+            memory: "512Mi"   # Reserve 2GB for the AI
+            cpu: "250m"    # Request 1 full CPU core
           limits:
-            memory: "3Gi"   # Stop it if it uses more than 3GB (saves the node)
+            memory: "3Gi"
+            cpu: "2000m"   # Stop it if it uses more than 3GB (saves the node)
         # This "lifecycle hook" runs immediately after the container starts
         # It commands the server to download the TinyLlama model automatically
         lifecycle:
