@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-ai-brain
+  labels:
+    app: sentiment-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sentiment-ai
+  template:
+    metadata:
+      labels:
+        app: sentiment-ai
+    spec:
+      containers:
+      - name: ollama
+        image: ollama/ollama:latest
+        ports:
+        - containerPort: 11434 # The standard API port for AI models
+        resources:
+          requests:
+            memory: "2Gi"   # Reserve 2GB for the AI
+            cpu: "1000m"    # Request 1 full CPU core
+          limits:
+            memory: "3Gi"   # Stop it if it uses more than 3GB (saves the node)
+        # This "lifecycle hook" runs immediately after the container starts
+        # It commands the server to download the TinyLlama model automatically
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 5; ollama pull tinyllama"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-ai-service
+spec:
+  selector:
+    app: sentiment-ai
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 11434 # Forward traffic to the AI port
+  type: ClusterIP
